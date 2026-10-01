@@ -1,10 +1,16 @@
 #include <stdio.h>
+int main(void) {
+      int sensor;
+      printf("Escreva o valor que apareceu no sensor:");
+      scanf("%d", &sensor);
 
-int main(void){
-    double tempi;
-    double tempf;
-    scanf("%f",&tempi);
-    tempf = (260 * tempi) / 1023.0 - 20;
-    printf("A temperatura é:  %.2f\n",tempf);
-    return 0;
-}
+      if (sensor >= 0 && sensor <= 1023) {
+            double temperatura = (((260*sensor)/1023.0)-20);
+            printf("Temperatura:%.2f\n", temperatura);
+      }
+      else{
+            printf("Erro\n");
+      }
+
+      return 0;
+ }
