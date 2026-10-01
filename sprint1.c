@@ -5,7 +5,7 @@ int main(void) {
       printf("Escreva o valor que apareceu no sensor:");
 
       if (scanf("%d", &sensor) !=1) {
-          return (printf("Error\n");
+          return (printf("Error\n"));
       }
       else if (sensor >= 0 && sensor <= 1023) {
             temperatura = (((260*sensor)/1023.0)-20);
