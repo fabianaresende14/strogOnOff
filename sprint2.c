@@ -2,12 +2,12 @@
 
 int main(void) {
 
-    float sensor; // float para não aceitar numeros decimais
+    float sensor;
     double temperatura;
 
     printf("Escreva o valor que apareceu no sensor: ");
 
-    while ((scanf("%f", &sensor) !=1) || (sensor != (int)sensor) || (sensor >= 0 && sensor <= 1023)) {
+    while ((scanf("%f", &sensor) !=1) || (sensor != (int)sensor) || (sensor < 0 && sensor > 1023)) {
         printf("Valor invalido. Escreva um valor inteiro: ");
 
         while (getchar() != '\n');
