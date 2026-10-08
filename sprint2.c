@@ -6,6 +6,12 @@ int main(void) {
     double temperatura;
 
     printf("Escreva o valor que apareceu no sensor: ");
+
+    while ((scanf("%f", &sensor) !=1) || (sensor != (int)sensor)) {
+        printf("Valor invalido. Escreva um valor inteiro: ");
+
+        while (getchar() != '\n');
+    }
     
     if (sensor >= 0 && sensor <= 1023) {
 
