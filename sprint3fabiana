@@ -5,9 +5,9 @@ int main(void) {
     float sensor;
     double temperatura;
 
-    printf("Escreva o valor que apareceu no sensor: ");
-
     while (1) {
+
+        printf("Escreva o valor que apareceu no sensor: ");
 
         while ((scanf("%f", &sensor) != 1) || (sensor != (int)sensor)) {
             printf("Valor invalido. Escreva um valor inteiro: ");
@@ -33,8 +33,6 @@ int main(void) {
                 printf("%.2f\n", temperatura);
             }
         }
-
-        printf("Escreva o valor que apareceu no sensor: ");
     }
 
     return 0;
