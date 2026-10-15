@@ -10,7 +10,7 @@ int main(void) {
         printf("Escreva o valor que apareceu no sensor(para terminar insira -1): ");
 
         while ((scanf("%f", &sensor) != 1) || (sensor != (int)sensor)) {
-            printf("Valor invalido. Escreva um valor inteiro: ");
+            printf("Valor invalido. Escreva um valor inteiro(para terminar insira -1): ");
 
             while (getchar() != '\n');
         }
