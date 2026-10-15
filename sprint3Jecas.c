@@ -6,7 +6,7 @@ int main(void) {
     float sensor;
     double temperatura;
 
-    printf("Escreva o valor que apareceu no sensor: ");
+    printf("Escreva o valor que apareceu no sensor (introduza "-1" para sair do programa): ");
 
     while (1) {
 
