@@ -20,7 +20,7 @@ int main(void) {
         }
 
         else if (sensor < 0 || sensor > 1023) {
-            printf("Valor fora da gama\n");
+            printf("Valor inválido\n");
         }
         else {
 
