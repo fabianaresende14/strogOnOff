@@ -6,14 +6,14 @@ do{
       do {
             printf("Escreva o valor que apareceu no sensor, ou insira -1 para sair: ");
             if (scanf("%f", &sensor) !=1) {
-                  printf("Erro\n");
+                  printf("Erro, insira um valor válido:\n");
                   while (getchar() != '\n');
             }
             else if (sensor == -1) {
                   break;
             }
             else if ((sensor != (int)sensor) || (sensor < 0 || sensor > 1023)) {
-                  printf("Erro\n");
+                  printf("Erro, insira um valor válido:\n");
                   while (getchar() != '\n');
             }
             else{
