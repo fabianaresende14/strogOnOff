@@ -57,7 +57,7 @@ int main(void) {
         		}
     		}
 
-    		printf("Temperatura maxima: %.2f\n", temperatura_maxima);
+    		printf("Temperatura máxima: %.2f\n", temperatura_maxima);
 		}
 
  if (numero_leituras > 0) {
@@ -69,7 +69,7 @@ int main(void) {
                         }
                 }
 
-                printf("Temperatura minima: %.2f\n", temperatura_minima);
+                printf("Temperatura mínima: %.2f\n", temperatura_minima);
                 }
 
 	if (numero_leituras > 0) {
@@ -81,7 +81,7 @@ int main(void) {
 
     temperatura_media = soma_temperaturas / numero_leituras;
 
-    printf("Temperatura media: %.2f\n", temperatura_media);
+    printf("Temperatura média: %.2f\n", temperatura_media);
 
        soma_quadrados = 0;
 
@@ -92,7 +92,7 @@ for (int i = 0; i < numero_leituras; i++) {
 
 desvio_padrao = sqrt(soma_quadrados / numero_leituras);
 
-printf("Desvio padrao: %.2f\n", desvio_padrao);
+printf("Desvio-padrão: %.2f\n", desvio_padrao);
 }
 
 return 0;
