@@ -95,5 +95,6 @@ desvio_padrao = sqrt(soma_quadrados / numero_leituras);
 printf("Desvio-padrão: %.2f\n", desvio_padrao);
 }
 
+	
 return 0;
 }
