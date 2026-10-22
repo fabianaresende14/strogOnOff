@@ -24,46 +24,45 @@ int main(void) {
                   }
                   } while(1);
 
-            if (sensor == -1 || valores_lidos >= 20){
+       if (sensor == -1 || valores_lidos >= 20){
                   break;
-            }
+       }
 
 
             temperatura = (((260*sensor)/1023.0)-20);
             sensores[valores_lidos] = sensor;
 
-            if(temperatura >= -10 && temperatura<= 190){
-                  printf("Temperatura: %.2f\n", temperatura);
-                  temperaturas[valores_lidos] = temperatura;
-                  valores_lidos++;
-
-            }
+       if(temperatura >= -10 && temperatura<= 190){
+            printf("Temperatura: %.2f\n", temperatura);
+            temperaturas[valores_lidos] = temperatura;
+            valores_lidos++;
+      }
  
-            else{
-                  printf("Valor fora da gama\n");
-            }
-        }
-double mínimo = temperaturas[0];
-      double máximo = temperaturas[0];
+      else{
+            printf("Valor fora da gama\n");
+      }
+  }
+   double mínimo = temperaturas[0];
+   double máximo = temperaturas[0];
 
-for (int i = 0; i < valores_lidos; i++) {
- soma += temperaturas[i];
- if(temperaturas[i] < mínimo) {
+     for (int i = 0; i < valores_lidos; i++) {
+         soma += temperaturas[i];
+         if(temperaturas[i] < mínimo) {
             mínimo = temperaturas[i];
- }
-if(temperaturas[i] > máximo) {
+         }
+         if(temperaturas[i] > máximo) {
            máximo = temperaturas[i];
-}
-}
-  double media = soma / valores_lidos;
-      printf(" Valores lidos (sensor -> temperatura):\n");
-for(int i=0; i < valores_lidos; i++) {  
-      printf("%d->%.2f\n", sensores[i], temperaturas[i]);
-}
-for(int i=0; i < valores_lidos; i++) {
-soma_quadrados += (temperaturas[i] - media) * (temperaturas[i] - media);
-}
-desvio_padrao = sqrt(soma_quadrados / valores_lidos);
+         }
+     }
+        double media = soma / valores_lidos;
+        printf(" Valores lidos (sensor -> temperatura):\n");
+     for(int i=0; i < valores_lidos; i++) {  
+         printf("%d->%.2f\n", sensores[i], temperaturas[i]);
+     }
+     for(int i=0; i < valores_lidos; i++) {
+         soma_quadrados += (temperaturas[i] - media) * (temperaturas[i] - media);
+     }
+     desvio_padrao = sqrt(soma_quadrados / valores_lidos);
  
       printf("Número de valores lidos:%d\n", valores_lidos);
       printf("Temperatura mínima: %.2f\n", mínimo);
