@@ -1,4 +1,4 @@
-include <stdio.h> 
+#include <stdio.h> 
 #include <math.h>
 #define número_máximo_leituras 20 
 
