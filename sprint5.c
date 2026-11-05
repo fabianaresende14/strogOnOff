@@ -65,20 +65,22 @@ int main(void) {
       return 0;
  }
 
-double calcular_temperatura(int a)
+double calcular_temperatura(int a) // Cálcula a temperatura a partir do valor do sensor e devolve o valor da temperatura
 {
  double res =(((260*a)/1023.0)-20);
  return res;
  }
 
- double temperatura_valida(double a)
+double temperatura_valida(double a) // Condição para a temperatura estar dentro dos valores máximos e mínimos permitidos
  {
  return a >= min_temperatura && a <= max_temperatura;
  }
-int validacao_sensor(int a){
+
+int validacao_sensor(int a){ // Condição para o valor do sensor ser válido
       return (a != (int)a) || (a < min_sensor || a > max_sensor)  && (a != -1);
 }
-double calcular_minimo(int b, double a[b]){
+
+double calcular_minimo(int b, double a[b]){ // Cálcula o valor mínimo do array de temperaturas, retornando-o, assim como a sua ordem no array
        double minimo = a[0];
        for (int i = 0; i < b; i++) {
       
@@ -88,7 +90,7 @@ double calcular_minimo(int b, double a[b]){
          }
 }
 }
-double calcular_maximo(int b, double a[b]){
+double calcular_maximo(int b, double a[b]){ // Cálcula o valor máximo do array de temperaturas, retornando-o, assim como a sua ordem no array
        double maximo = a[0];
        for (int i = 0; i < b; i++) {
       
@@ -98,7 +100,7 @@ double calcular_maximo(int b, double a[b]){
          }
       }
 }
-double calcular_media(int b, double a[b]){
+double calcular_media(int b, double a[b]){ // Cálcula a média do array de temperaturas através da soma dos elementos e retorna-a
       double soma = 0;
        for (int i = 0; i < b; i++) {
          soma += a[i];
@@ -106,7 +108,8 @@ double calcular_media(int b, double a[b]){
 
 return soma / b;
 }
-double calcular_desviopadrao(int b,double a[b],double c){
+
+double calcular_desviopadrao(int b,double a[b],double c){ // Cálcula o desvio padrão do array de temperaturas através da fórmula do desvio padrão e retorna-o
       double soma_quadrados = 0;
       for(int i=0; i < b; i++) {
          soma_quadrados += (a[i] - c) * (a[i] - c);
@@ -115,9 +118,9 @@ double calcular_desviopadrao(int b,double a[b],double c){
 
 }
 
-void apresentar_estatisticas(int a, int *b, double *c, double d, double e, double f, double g){
+void apresentar_estatisticas(int a, int *b, double *c, double d, double e, double f, double g){ // Através do printf, apresenta os valores lidos, o número de valores lidos, a temperatura mínima, máxima e média e o desvio padrão
       printf(" Valores lidos (sensor -> temperatura):\n");
-      for(int i = 0; i < a; i++){
+      for(int i = 0; i < a; i++){ // Apresenta o valor do sensor e a temperatura correspondente
             printf("%d -> %.2f\n", b[i], c[i]);
       }
       printf("Número de valores lidos:%d\n", a);
@@ -125,5 +128,4 @@ void apresentar_estatisticas(int a, int *b, double *c, double d, double e, doubl
       printf("Temperatura máxima: %.2f\n", e);
       printf("Temperatura média: %.2f\n", f);
       printf("Desvio-padrão: %.2f\n", g);
-
 }
