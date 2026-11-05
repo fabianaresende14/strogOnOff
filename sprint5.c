@@ -86,9 +86,9 @@ double calcular_minimo(int b, double a[b]){ // Cálcula o valor mínimo do array
       
          if(a[i] < minimo) {
             minimo = a[i];
-            return minimo;
          }
 }
+      return minimo;
 }
 double calcular_maximo(int b, double a[b]){ // Cálcula o valor máximo do array de temperaturas, retornando-o, assim como a sua ordem no array
        double maximo = a[0];
@@ -96,9 +96,9 @@ double calcular_maximo(int b, double a[b]){ // Cálcula o valor máximo do array
       
          if(a[i] > maximo) {
             maximo = a[i];
-            return maximo;
          }
       }
+      return maximo;
 }
 double calcular_media(int b, double a[b]){ // Cálcula a média do array de temperaturas através da soma dos elementos e retorna-a
       double soma = 0;
