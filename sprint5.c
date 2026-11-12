@@ -77,7 +77,7 @@ double temperatura_valida(double a) // Condição para a temperatura estar dentr
  }
 
 int validacao_sensor(int a){ // Condição para o valor do sensor ser válido
-      return (a != (int)a) || (a < min_sensor || a > max_sensor)  && (a != -1);
+      return ((a != (int)a) || (a < min_sensor || a > max_sensor)) && (a != -1);
 }
 
 double calcular_minimo(int b, double a[b]){ // Cálcula o valor mínimo do array de temperaturas, retornando-o, assim como a sua ordem no array
