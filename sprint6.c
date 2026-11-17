@@ -2,14 +2,14 @@
 #include <string.h>
 #include <math.h>
 
-#define NUMERO_MAXIMO_LEITURAS 20
-#define MIN_SENSOR 0
-#define MAX_SENSOR 1023
-#define MIN_TEMPERATURA -10
-#define MAX_TEMPERATURA 190
-#define NUM_SENSORES 3
+#define numero_maximo_leituras 20
+#define min_sensor 0
+#define max_sensor 1023
+#define min_temperatura -10
+#define max_temperatura 190
+#define n_sensores 3 //número de sensores existentes
 
-// Estrutura para centralizar a calibração dos sensores num único ponto
+// Estrutura para guardar a calibração dos sensores 
 struct sensor_info {
     char nome[20];
     double ganho;
@@ -20,80 +20,78 @@ struct sensor_info {
 struct leitura {
     char sensor[20];
     int instante;
-    int valor;
+    float valor_sensor;
     double temperatura;
 };
 
-// Protótipos das funções (mantendo as vossas funções originais adaptadas)
-int encontrar_sensor(char *nome, struct sensor_info lista[], int total);
-double calcular_temperatura(int a, struct sensor_info s);
-int temperatura_valida(double a);
-int validacao_sensor(int a);
-double calcular_minimo(int b, double a[b]);
-double calcular_maximo(int b, double a[b]);
-double calcular_media(int b, double a[b]);
-double calcular_desviopadrao(int b, double a[b], double c);
-void apresentar_estatisticas(int total_leituras, struct leitura leituras[], struct sensor_info lista_sensores[], int total_sensores);
+// Protótipos das funções
+int encontrar_sensor(char sensor_lido[], struct sensor_info sensores[], int nº_sensores);
+double calcular_temperatura(float valor_sensor_lido, struct sensor_info sensores);
+int temperatura_valida(double temperatura);
+int validacao_sensor(float valor_sensor_lido);
+double calcular_minimo(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]);
+double calcular_maximo(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]);
+double calcular_media(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]);
+double calcular_desviopadrao(int contagem_por_sensor, double temp_sensor[contagem_por_sensor], double media);
+void apresentar_estatisticas(int valores_lidos, struct leitura leituras[], struct sensor_info sensores[], int nº_sensores);
 
 int main(void) {
-    // Único ponto do código onde os dados de calibração estão definidos
-    struct sensor_info lista_sensores[NUM_SENSORES] = {
+    //Calibração
+    struct sensor_info sensores[n_sensores] = {
         {"TEMP1", 260.0, -20.0},
         {"TEMP2", 250.0, -15.0},
         {"TEMP3", 240.0, -10.0}
     };
 
-    struct leitura leituras[NUMERO_MAXIMO_LEITURAS];
+    struct leitura leituras[numero_maximo_leituras];
     int valores_lidos = 0;
     char linha[100];
 
-    while (valores_lidos < NUMERO_MAXIMO_LEITURAS) {
+    while (valores_lidos < numero_maximo_leituras) {
         if (fgets(linha, sizeof(linha), stdin) == NULL) {
             break;
         }
 
-        // Remove o '\n' do final da linha
-        linha[strcspn(linha, "\r\n")] = '\0';
-
         // Condição de saída
-        if (strcmp(linha, "FIM") == 0) {
+        if (strcmp(linha, "FIM\n") == 0 || strcmp(linha, "FIM") == 0) {
             break;
         }
 
-        char nome_lido[20];
-        int instante_lido, valor_lido;
+        char sensor_lido[20];
+        int instante_lido;
+        float valor_sensor_lido;
         char extra; // Para detetar caracteres inválidos após os números (ex: "TEMP2 2 10abc")
 
-        // Tenta ler os 3 campos separados por espaços
-        int campos = sscanf(linha, "%19s %d %d %c", nome_lido, &instante_lido, &valor_lido, &extra);
+        // A função sscanf() vai devolver o nº de campos que leu corretamente
+        int campos = sscanf(linha, "%19s %d %f %c", sensor_lido, &instante_lido, &valor_sensor_lido, &extra);
 
         if (campos < 1) {
-            continue; // Ignora linhas em branco
+            continue; // Ignora linhas em branco e volta ao início do ciclo
         }
 
         // 1. Verificar se o sensor existe
-        int idx_sensor = encontrar_sensor(nome_lido, lista_sensores, NUM_SENSORES);
-        if (idx_sensor == -1) {
+        int indice_sensor = encontrar_sensor(sensor_lido, sensores, n_sensores);
+        if (indice_sensor == -1) {
             printf("Sensor desconhecido\n");
             continue;
         }
 
-        // 2. Verificar se o formato da linha é válido (3 campos exatos e valor do sensor entre 0 e 1023)
-        if (campos != 3 || !validacao_sensor(valor_lido)) {
+        // 2. Verificar se a linha tem 3 campos e valor do sensor entre 0 e 1023)
+        if (campos != 3 || validacao_sensor(valor_sensor_lido)) {
             printf("Linha inválida\n");
             continue;
         }
 
         // 3. Calcular e validar a temperatura
-        double temperatura = calcular_temperatura(valor_lido, lista_sensores[idx_sensor]);
+        double temperatura = calcular_temperatura(valor_sensor_lido, sensores[indice_sensor]);
 
         if (temperatura_valida(temperatura)) {
             printf("%.2f\n", temperatura);
 
             // Guardar na struct de leituras
-            strcpy(leituras[valores_lidos].sensor, nome_lido);
+            strcpy(leituras[valores_lidos].sensor, sensor_lido);
             leituras[valores_lidos].instante = instante_lido;
-            leituras[valores_lidos].valor = valor_lido;
+            leituras[valores_lidos].valor_sensor = valor_sensor_lido;
             leituras[valores_lidos].temperatura = temperatura;
             valores_lidos++;
         } else {
@@ -101,103 +99,102 @@ int main(void) {
         }
     }
 
-    apresentar_estatisticas(valores_lidos, leituras, lista_sensores, NUM_SENSORES);
+    apresentar_estatisticas(valores_lidos, leituras, sensores, n_sensores);
 
     return 0;
 }
 
-// Procura o nome do sensor na lista de configuração e devolve o índice (ou -1 se não existir)
-int encontrar_sensor(char *nome, struct sensor_info lista[], int total) {
-    for (int i = 0; i < total; i++) {
-        if (strcmp(nome, lista[i].nome) == 0) {
+// Procura o nome do sensor e devolve o índice (ou -1 se não existir)
+int encontrar_sensor(char sensor_lido[], struct sensor_info sensores[], int nº_sensores) {
+    for (int i = 0; i < nº_sensores; i++) {
+        if (strcmp(sensor_lido, sensores[i].nome) == 0) {
             return i;
         }
     }
     return -1;
 }
 
-// Calcula a temperatura usando o ganho e desvio específicos do sensor
-double calcular_temperatura(int a, struct sensor_info s) {
-    double res = ((s.ganho * a) / 1023.0) + s.desvio;
+// Calcula a temperatura usando o ganho e desvio específicos do sensor e devolve o valor da temperatura
+double calcular_temperatura(float valor_sensor_lido, struct sensor_info sensores) {
+    double res = ((sensores.ganho * valor_sensor_lido) / 1023.0) + sensores.desvio;
     return res;
 }
 
 // Condição para a temperatura estar dentro dos valores máximos e mínimos permitidos
-int temperatura_valida(double a) {
-    return a >= MIN_TEMPERATURA && a <= MAX_TEMPERATURA;
+int temperatura_valida(double temperatura) {
+    return temperatura >= min_temperatura && temperatura <= max_temperatura;
 }
 
-// Condição para o valor lido do sensor ser válido (entre 0 e 1023)
-int validacao_sensor(int a) {
-    return (a >= MIN_SENSOR && a <= MAX_SENSOR);
+// Condição para verificar se o valor do sensor é inválido 
+int validacao_sensor(float valor_sensor_lido) {
+    return ((valor_sensor_lido != (int)valor_sensor_lido) || (valor_sensor_lido< min_sensor || valor_sensor_lido > max_sensor));
 }
-
-// As vossas 4 funções matemáticas mantidas intactas:
-double calcular_minimo(int b, double a[b]) {
-    double minimo = a[0];
-    for (int i = 0; i < b; i++) {
-        if (a[i] < minimo) {
-            minimo = a[i];
+// Cálcula o valor mínimo do array de temperaturas, retornando-o, assim como a sua ordem no array
+double calcular_minimo(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]) {
+    double minimo = temp_sensor[0];
+    for (int i = 0; i < contagem_por_sensor; i++) {
+        if (temp_sensor[i] < minimo) {
+            minimo = temp_sensor[i];
         }
     }
     return minimo;
 }
-
-double calcular_maximo(int b, double a[b]) {
-    double maximo = a[0];
-    for (int i = 0; i < b; i++) {
-        if (a[i] > maximo) {
-            maximo = a[i];
+// Cálcula o valor máximo do array de temperaturas, retornando-o, assim como a sua ordem no array
+double calcular_maximo(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]) {
+    double maximo = temp_sensor[0];
+    for (int i = 0; i < contagem_por_sensor; i++) {
+        if (temp_sensor[i] > maximo) {
+            maximo = temp_sensor[i];
         }
     }
     return maximo;
 }
-
-double calcular_media(int b, double a[b]) {
+// Cálcula a média do array de temperaturas através da soma dos elementos e retorna-a
+double calcular_media(int contagem_por_sensor, double temp_sensor[contagem_por_sensor]) {
     double soma = 0;
-    for (int i = 0; i < b; i++) {
-        soma += a[i];
+    for (int i = 0; i < contagem_por_sensor; i++) {
+        soma += temp_sensor[i];
     }
-    return soma / b;
+    return soma / contagem_por_sensor;
 }
-
-double calcular_desviopadrao(int b, double a[b], double c) {
+// Cálcula o desvio padrão do array de temperaturas através da fórmula do desvio padrão e retorna-o
+double calcular_desviopadrao(int contagem_por_sensor, double temp_sensor[contagem_por_sensor], double media) {
     double soma_quadrados = 0;
-    for (int i = 0; i < b; i++) {
-        soma_quadrados += (a[i] - c) * (a[i] - c);
+    for (int i = 0; i < contagem_por_sensor; i++) {
+        soma_quadrados += (temp_sensor[i] - media) * (temp_sensor[i] - media);
     }
-    return sqrt(soma_quadrados / b);
+    return sqrt(soma_quadrados / contagem_por_sensor);
 }
 
-// Apresenta a lista geral e chama as vossas funções estatísticas para cada sensor
-void apresentar_estatisticas(int total_leituras, struct leitura leituras[], struct sensor_info lista_sensores[], int total_sensores) {
+
+void apresentar_estatisticas(int valores_lidos, struct leitura leituras[], struct sensor_info sensores[], int nº_sensores) {
     printf("\nLeituras registadas (sensor instante: valor -> temperatura):\n");
-    for (int i = 0; i < total_leituras; i++) {
-        printf("%s %d: %3d -> %6.2f\n",
-               leituras[i].sensor, leituras[i].instante, leituras[i].valor, leituras[i].temperatura);
+    for (int i = 0; i < valores_lidos; i++) {
+        printf("%s %d: %3.0f -> %6.2f\n",
+               leituras[i].sensor, leituras[i].instante, leituras[i].valor_sensor, leituras[i].temperatura);
     }
 
     // Para cada sensor conhecido, agrupa as suas temperaturas e calcula as estatísticas
-    for (int s = 0; s < total_sensores; s++) {
-        double temp_sensor[NUMERO_MAXIMO_LEITURAS];
-        int count = 0;
+    for (int s = 0; s < nº_sensores; s++) {
+        double temp_sensor[numero_maximo_leituras];
+        int contagem_por_sensor = 0;
 
-        for (int i = 0; i < total_leituras; i++) {
-            if (strcmp(leituras[i].sensor, lista_sensores[s].nome) == 0) {
-                temp_sensor[count] = leituras[i].temperatura;
-                count++;
+        for (int i = 0; i < valores_lidos; i++) {
+            if (strcmp(leituras[i].sensor, sensores[s].nome) == 0) {
+                temp_sensor[contagem_por_sensor] = leituras[i].temperatura;
+                contagem_por_sensor++;
             }
         }
 
         // Só apresenta estatísticas se o sensor tiver pelo menos 1 leitura
-        if (count > 0) {
-            double minimo = calcular_minimo(count, temp_sensor);
-            double maximo = calcular_maximo(count, temp_sensor);
-            double media = calcular_media(count, temp_sensor);
-            double desvio_padrao = calcular_desviopadrao(count, temp_sensor, media);
+        if (contagem_por_sensor > 0) {
+            double minimo = calcular_minimo(contagem_por_sensor, temp_sensor);
+            double maximo = calcular_maximo(contagem_por_sensor, temp_sensor);
+            double media = calcular_media(contagem_por_sensor, temp_sensor);
+            double desvio_padrao = calcular_desviopadrao(contagem_por_sensor, temp_sensor, media);
 
-            printf("\nSensor %s\n", lista_sensores[s].nome);
-            printf("Número de valores lidos: %d\n", count);
+            printf("\nSensor %s\n", sensores[s].nome);
+            printf("Número de valores lidos: %d\n", contagem_por_sensor);
             printf("Temperatura mínima:    %6.2f\n", minimo);
             printf("Temperatura máxima:    %6.2f\n", maximo);
             printf("Temperatura média:     %6.2f\n", media);
