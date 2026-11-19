@@ -34,8 +34,11 @@ double calcular_maximo(int SensorCount, double TempSensor[SensorCount]);
 double calcular_media(int SensorCount, double TempSensor[SensorCount]);
 double calcular_desviopadrao(int SensorCount, double TempSensor[SensorCount], double media);
 void apresentar_estatisticas(int valoresLidos, struct leitura leituras[], struct InfoSensor sensores[], int SensorNo);
+int linha_duplicada(const char SensorLido[], int InstanteLido, const struct leitura leituras[], int valoresLidos);
 
 int main(void) {
+
+
     //Dados de calibração dos sensores
     struct InfoSensor sensores[QuantSensores] = {
         {"TEMP1", 260.0, -20.0},
@@ -57,20 +60,20 @@ int main(void) {
             break;
         }
 
-        char sensor_lido[20];
-        int instante_lido;
+        char SensorLido[20];
+        int InstanteLido;
         float SensorValue;
         char extra; // Para detetar caracteres inválidos após os números (ex: "TEMP2 2 10abc")
 
         // A função sscanf() vai devolver o nº de campos que leu corretamente e guardar na variável campos
-        int campos = sscanf(linha, "%19s %d %f %c", sensor_lido, &instante_lido, &SensorValue, &extra);
+        int campos = sscanf(linha, "%19s %d %f %c", SensorLido, &InstanteLido, &SensorValue, &extra);
 
         if (campos < 1) {
             continue; // Ignora linhas em branco e volta ao início do ciclo
         }
 
         // Verificar se o sensor existe
-        int indice_sensor = encontrar_sensor(sensor_lido, sensores, QuantSensores); // A função encontar_sensor devolve o indice no array sensores 
+        int indice_sensor = encontrar_sensor(SensorLido, sensores, QuantSensores); // A função encontar_sensor devolve o indice no array sensores 
         if (indice_sensor == -1) {
             printf("Sensor desconhecido\n");
             continue;
@@ -82,6 +85,11 @@ int main(void) {
             continue;
         }
 
+        if (linha_duplicada(SensorLido, InstanteLido, leituras, valoresLidos)) {
+            printf("Linha duplicada\n");
+            continue;
+        }
+
         // Calcular e validar a temperatura
         double temperatura = calcular_temperatura(SensorValue, sensores[indice_sensor]);
 
@@ -89,8 +97,8 @@ int main(void) {
             printf("%.2f\n", temperatura);
 
             // Guardar na struct de leituras
-            strcpy(leituras[valoresLidos].sensor, sensor_lido); // Tem strcpy para copiar o nome do sensor para a struct pois trata-se de uma string
-            leituras[valoresLidos].instante = instante_lido;
+            strcpy(leituras[valoresLidos].sensor, SensorLido); // Tem strcpy para copiar o nome do sensor para a struct pois trata-se de uma string
+            leituras[valoresLidos].instante = InstanteLido;
             leituras[valoresLidos].valor_sensor = SensorValue;
             leituras[valoresLidos].temperatura = temperatura;
             valoresLidos++;
@@ -105,9 +113,9 @@ int main(void) {
 }
 
 // Procura o nome do sensor na lista de configuraões e devolve o índice (ou -1 se não existir)
-int encontrar_sensor(char sensor_lido[], struct InfoSensor sensores[], int SensorNo) {
+int encontrar_sensor(char SensorLido[], struct InfoSensor sensores[], int SensorNo) {
     for (int i = 0; i < SensorNo; i++) {
-        if (strcmp(sensor_lido, sensores[i].nome) == 0) {
+        if (strcmp(SensorLido, sensores[i].nome) == 0) {
             return i;
         }
     }
@@ -116,7 +124,7 @@ int encontrar_sensor(char sensor_lido[], struct InfoSensor sensores[], int Senso
 
 // Calcula a temperatura usando o ganho e desvio específicos do sensor e devolve o valor da temperatura
 double calcular_temperatura(float SensorValue, struct InfoSensor sensores) {
-    double res = ((sensores.ganho * SensorValue) / 1023.0) + sensores.desvio;
+    double res = ((sensores.ganho * (double)SensorValue) / (double)MaxSensor) + sensores.desvio;
     return res;
 }
 
@@ -129,6 +137,7 @@ int temperatura_valida(double temperatura) {
 int validacao_sensor(float SensorValue) {
     return ((SensorValue != (int)SensorValue) || (SensorValue< MinSensor || SensorValue > MaxSensor));
 }
+
 // Cálcula o valor mínimo do array de temperaturas, retornando-o, assim como a sua ordem no array
 double calcular_minimo(int SensorCount, double TempSensor[SensorCount]) {
     double minimo = TempSensor[0];
@@ -201,4 +210,13 @@ void apresentar_estatisticas(int valoresLidos, struct leitura leituras[], struct
             printf("Desvio-padrão:         %6.2f\n", desvio_padrao);
         }
     }
+}
+
+int linha_duplicada(const char SensorLido[], int InstanteLido, const struct leitura leituras[], int valoresLidos) {
+    for (int i = 0; i < valoresLidos; i++) {
+        if (strcmp(leituras[i].sensor, SensorLido) == 0 && leituras[i].instante == InstanteLido) {
+            return 1;
+        }
+    }
+    return 0;
 }
