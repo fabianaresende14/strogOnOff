@@ -9,7 +9,7 @@
 #define max_temperatura 190
 #define n_sensores 3 //número de sensores existentes
 
-// Estrutura para guardar a calibração dos sensores 
+// Estrutura para guardar a calibração dos sensores contndo o nome, ganho e desvio
 struct sensor_info {
     char nome[20];
     double ganho;
@@ -36,7 +36,7 @@ double calcular_desviopadrao(int contagem_por_sensor, double temp_sensor[contage
 void apresentar_estatisticas(int valores_lidos, struct leitura leituras[], struct sensor_info sensores[], int nº_sensores);
 
 int main(void) {
-    //Calibração
+    //Dados de calibração dos sensores
     struct sensor_info sensores[n_sensores] = {
         {"TEMP1", 260.0, -20.0},
         {"TEMP2", 250.0, -15.0},
@@ -47,13 +47,13 @@ int main(void) {
     int valores_lidos = 0;
     char linha[100];
 
-    while (valores_lidos < numero_maximo_leituras) {
-        if (fgets(linha, sizeof(linha), stdin) == NULL) {
+    while (valores_lidos < numero_maximo_leituras) { // Não ler mais do que o máximo permitido 
+        if (fgets(linha, sizeof(linha), stdin) == NULL) { // a função fgets devolve NULL se der erro
             break;
         }
 
         // Condição de saída
-        if (strcmp(linha, "FIM\n") == 0 || strcmp(linha, "FIM") == 0) {
+        if (strcmp(linha, "FIM\n") == 0 || strcmp(linha, "FIM") == 0 || strcmp(linha, "FIM\t") == 0) {
             break;
         }
 
@@ -62,34 +62,34 @@ int main(void) {
         float valor_sensor_lido;
         char extra; // Para detetar caracteres inválidos após os números (ex: "TEMP2 2 10abc")
 
-        // A função sscanf() vai devolver o nº de campos que leu corretamente
+        // A função sscanf() vai devolver o nº de campos que leu corretamente e guardar na variável campos
         int campos = sscanf(linha, "%19s %d %f %c", sensor_lido, &instante_lido, &valor_sensor_lido, &extra);
 
         if (campos < 1) {
             continue; // Ignora linhas em branco e volta ao início do ciclo
         }
 
-        // 1. Verificar se o sensor existe
-        int indice_sensor = encontrar_sensor(sensor_lido, sensores, n_sensores);
+        // Verificar se o sensor existe
+        int indice_sensor = encontrar_sensor(sensor_lido, sensores, n_sensores); // A função encontar_sensor devolve o indice no array sensores 
         if (indice_sensor == -1) {
             printf("Sensor desconhecido\n");
             continue;
         }
 
-        // 2. Verificar se a linha tem 3 campos e valor do sensor entre 0 e 1023)
+        // Verificar se o formato da linha é válido
         if (campos != 3 || validacao_sensor(valor_sensor_lido)) {
             printf("Linha inválida\n");
             continue;
         }
 
-        // 3. Calcular e validar a temperatura
+        // Calcular e validar a temperatura
         double temperatura = calcular_temperatura(valor_sensor_lido, sensores[indice_sensor]);
 
         if (temperatura_valida(temperatura)) {
             printf("%.2f\n", temperatura);
 
             // Guardar na struct de leituras
-            strcpy(leituras[valores_lidos].sensor, sensor_lido);
+            strcpy(leituras[valores_lidos].sensor, sensor_lido); // Tem strcpy para copiar o nome do sensor para a struct pois trata-se de uma string
             leituras[valores_lidos].instante = instante_lido;
             leituras[valores_lidos].valor_sensor = valor_sensor_lido;
             leituras[valores_lidos].temperatura = temperatura;
@@ -104,7 +104,7 @@ int main(void) {
     return 0;
 }
 
-// Procura o nome do sensor e devolve o índice (ou -1 se não existir)
+// Procura o nome do sensor na lista de configuraões e devolve o índice (ou -1 se não existir)
 int encontrar_sensor(char sensor_lido[], struct sensor_info sensores[], int nº_sensores) {
     for (int i = 0; i < nº_sensores; i++) {
         if (strcmp(sensor_lido, sensores[i].nome) == 0) {
